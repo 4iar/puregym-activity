@@ -4,7 +4,7 @@ import csv
 from datetime import datetime
 from time import sleep
 from bs4 import BeautifulSoup
-import urllib
+import urllib.request
 import gzip
 
 GYM_NAME = ""
@@ -33,7 +33,13 @@ def get_page(url):
 def extract_number_of_people(html):
 
     soup = BeautifulSoup(html, 'html.parser')
-    return int(soup.find('span', {'class': 'people-number'}).contents[0])
+    try:
+        num = int(soup.find('span', {'class': 'people-number'}).contents[0])
+    except AttributeError:
+        print("Couldn't find people-number class in the page. Did you forget to edit GYM_NAME?")
+        return None
+    else:
+        return num
 
 
 def write_data(num_people, output_file):
@@ -51,7 +57,10 @@ while True:
 
     if html:
         n = extract_number_of_people(html)
-        write_data(n, OUTPUT_FILE)
+        if n:
+            write_data(n, OUTPUT_FILE)
+        else:
+            continue
 
         sleep(CHECK_INTERVAL_MINUTES * 60)
 
