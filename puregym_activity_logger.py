@@ -6,6 +6,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 import urllib.request
 import gzip
+import http
 
 GYM_NAME = ""
 GYM_URL = "http://puregym.com/gyms/%s/whats-happening" % GYM_NAME
@@ -21,6 +22,8 @@ def get_page(url):
         print("HTTPError: " + str(e.code))
     except urllib.error.URLError as e:
         print("URLError: " + str(e.reason))
+    except http.client.HTTPException as e:
+        print("HTTPException " + str(e.reason))
     else:
         if html.info().get('Content-Encoding') == 'gzip':
             return gzip.decompress(html.read())
