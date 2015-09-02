@@ -7,9 +7,8 @@ from bs4 import BeautifulSoup
 import urllib.request
 import gzip
 import http
+import sys
 
-GYM_NAME = ""
-GYM_URL = "http://puregym.com/gyms/%s/whats-happening" % GYM_NAME
 CHECK_INTERVAL_MINUTES = 10
 OUTPUT_FILE = "data.csv"
 
@@ -39,7 +38,7 @@ def extract_number_of_people(html):
     try:
         num = int(soup.find('span', {'class': 'people-number'}).contents[0])
     except AttributeError:
-        print("Couldn't find people-number class in the page. Did you forget to edit GYM_NAME?")
+        print("Couldn't find people-number class in the page.")
         return None
     else:
         return num
@@ -53,18 +52,32 @@ def write_data(num_people, output_file):
 
     w.writerow([d.date(), d.strftime("%A"), d.strftime("%H:%M"), num_people])
 
+def watch_gym(gym_url):
 
-while True:
+    while True:
 
-    html = get_page(GYM_URL)
+        html = get_page(gym_url)
 
-    if html:
-        n = extract_number_of_people(html)
-        if n:
-            write_data(n, OUTPUT_FILE)
-        else:
-            continue
+        if html:
+            n = extract_number_of_people(html)
+            if n:
+                write_data(n, OUTPUT_FILE)
+            else:
+                continue
 
-        sleep(CHECK_INTERVAL_MINUTES * 60)
+            sleep(CHECK_INTERVAL_MINUTES * 60)
 
-    html = None
+        html = None
+
+if __name__ == "__main__":
+
+    try:
+        gym_name = sys.argv[1]
+    except IndexError:
+        gym_name = input("Enter the name of your gym: ")
+
+    if gym_name:
+        gym_url = "http://puregym.com/gyms/{}/whats-happening".format(gym_name)
+        watch_gym(gym_url)
+    else:
+        raise ValueError("No gym name provided. Quitting.")
