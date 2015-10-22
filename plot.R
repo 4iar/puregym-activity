@@ -1,9 +1,9 @@
 require(ggplot2)
 require(scales)
 
-args<-commandArgs(TRUE)
+f <- readline(prompt="Path of the data file: ")
 
-data = read.csv(file = 'data.csv', header=FALSE, as.is=TRUE)
+data = read.csv(file=f, header=FALSE, as.is=TRUE)
 
 # Decimal time is easier to manage
 data$V3 = sapply(strsplit(data$V3, ":"),
@@ -20,23 +20,15 @@ p1 <- ggplot(data, aes(x=V3, y=V4)) + geom_point() +
   stat_smooth() +
   scale_x_continuous("Time of day (UTC)", breaks=rep(0:24)) +
   scale_y_discrete("Number of people in gym", breaks=pretty_breaks(n=15))
-x11()
-plot(p1)
 
 p2 <- ggplot(data, aes(V3, V4)) + geom_point() +
   stat_smooth() +
   facet_wrap( ~ V2, ncol = 1) +
   scale_x_continuous("Time of day (UTC)", breaks=rep(0:24)) +
   scale_y_discrete("Number of people in gym", breaks=pretty_breaks(n=15))
-x11()
-plot(p2)
 
 p3 <- ggplot(data, aes(V3, V4)) +
   stat_smooth(aes(fill = factor(V2))) +
   scale_fill_discrete(name = "") +
   scale_x_continuous("Time of day (UTC)", breaks=rep(0:24)) +
   scale_y_discrete("Number of people in gym", breaks=pretty_breaks(n=15))
-x11()
-plot(p3)
-
-
