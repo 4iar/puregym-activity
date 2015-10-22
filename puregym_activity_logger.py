@@ -53,6 +53,7 @@ def write_data(num_people, output_file):
 
     w.writerow([d.date(), d.strftime("%A"), d.strftime("%H:%M"), num_people])
 
+
 def watch_gym(gym_url, output_file):
 
     while True:
