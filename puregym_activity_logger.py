@@ -49,7 +49,7 @@ def write_data(num_people, output_file):
 
     f = open(output_file, 'a')
     w = csv.writer(f)
-    d = datetime.today()
+    d = datetime.utcnow()
 
     w.writerow([d.date(), d.strftime("%A"), d.strftime("%H:%M"), num_people])
 
