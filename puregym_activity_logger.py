@@ -66,6 +66,8 @@ def watch_gym(gym_url, output_file):
             else:
                 continue
 
+            print('Wrote data at {}'.format(datetime.utcnow()))
+
             sleep(CHECK_INTERVAL_MINUTES * 60)
 
         html = None
