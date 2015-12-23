@@ -99,7 +99,7 @@ london-wembley
 luton-and-dunstable
 manchester-bury-new-road
 manchester-debdale
-manchester-exchange-quay-
+manchester-exchange-quay-0
 manchester-moston
 manchester-spinningfields
 manchester-stretford-mall
