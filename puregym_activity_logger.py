@@ -7,90 +7,88 @@ from bs4 import BeautifulSoup
 import urllib.request
 import gzip
 import http
-import sys
-import os
 
-CHECK_INTERVAL_MINUTES = 10
+CHECK_INTERVAL_MINUTES = 15
 DATA_SUBDIRECTORY = "recorded_data"
+LIST_OF_GYMS_FILE = "gyms.txt"
 
 
-def get_page(url):
+class PureGymLogger:
 
-    try:
-        html = urllib.request.urlopen(url)
-    except urllib.error.HTTPError as e:
-        print("HTTPError: " + str(e.code))
-    except urllib.error.URLError as e:
-        print("URLError: " + str(e.reason))
-    except http.client.HTTPException as e:
-        print("HTTPException " + str(e.reason))
-    else:
-        if html.info().get('Content-Encoding') == 'gzip':
-            return gzip.decompress(html.read())
+    def __init__(self):
+        self.gyms = open(LIST_OF_GYMS_FILE, 'r').read().strip().split('\n')
 
-        return html.read()
+    def get_page(self, url):
 
-    return None
+        try:
+            html = urllib.request.urlopen(url)
+        except urllib.error.HTTPError as e:
+            print("HTTPError: " + str(e.code))
+        except urllib.error.URLError as e:
+            print("URLError: " + str(e.reason))
+        except http.client.HTTPException as e:
+            print("HTTPException " + str(e.reason))
+        else:
+            if html.info().get('Content-Encoding') == 'gzip':
+                return gzip.decompress(html.read())
 
+            return html.read()
 
-def extract_number_of_people(html):
-
-    soup = BeautifulSoup(html, 'html.parser')
-    try:
-        num = int(soup.find('span', {'class': 'people-number'}).contents[0])
-    except AttributeError:
-        print("Couldn't find people-number class in the page.")
         return None
-    else:
-        return num
 
+    def extract_number_of_people(self, html):
 
-def write_data(num_people, output_file):
+        soup = BeautifulSoup(html, 'html.parser')
+        try:
+            num = int(soup.find('span', {'class': 'people-number'}).contents[0])
+        except AttributeError:
+            print("Couldn't find people-number class in the page.")
+            return None
+        else:
+            return num
 
-    f = open(output_file, 'a')
-    w = csv.writer(f)
-    d = datetime.utcnow()
+    def write_data(self, num_people, output_file):
 
-    w.writerow([d.date(), d.strftime("%A"), d.strftime("%H:%M"), num_people])
+        f = open(output_file, 'a')
+        w = csv.writer(f)
+        d = datetime.utcnow()
 
+        w.writerow([d.date(), d.strftime("%A"), d.strftime("%H:%M"), num_people])
 
-def watch_gym(gym_url, output_file):
+    def find_number_of_people_in_gym(self, gym_name):
 
-    while True:
+        attempts = 0
+        while attempts < 3:
 
-        html = get_page(gym_url)
+            print("Watching gym {}, attempt {}".format(gym_name, attempts))
+            html = self.get_page("http://puregym.com/gyms/{}/whats-happening".format(gym_name))
 
-        if html:
-            n = extract_number_of_people(html)
-            if n:
-                write_data(n, output_file)
-            else:
-                continue
+            if html:
+                n = self.extract_number_of_people(html)
+                if n:
+                    print("{} people are in {}".format(n, gym_name))
+                    #write_data(n, output_file)
+                    break
+                else:
+                    print("broke")
 
-            print('Wrote data at {}'.format(datetime.utcnow()))
+                print('Wrote data at {}'.format(datetime.utcnow()))
+
+            attempts += 1
+
+    def watch_gyms(self):
+
+        while True:
+
+            for gym in self.gyms:
+
+                # write number of people in gymto file here
+                self.find_number_of_people_in_gym(gym)
 
             sleep(CHECK_INTERVAL_MINUTES * 60)
 
-        html = None
 
 if __name__ == "__main__":
 
-    try:
-        gym_name = sys.argv[1]
-    except IndexError:
-        gym_name = input("Enter the name of your gym: ")
-
-    if gym_name:
-        gym_url = "http://puregym.com/gyms/{}/whats-happening".format(gym_name)
-
-        try:
-            os.mkdir(DATA_SUBDIRECTORY)
-        except FileExistsError:
-            pass
-
-        outfile_name = '{}.csv'.format(gym_name)
-        full_outfile_path = os.path.join(os.path.dirname(__file__), DATA_SUBDIRECTORY, outfile_name)
-
-        watch_gym(gym_url, full_outfile_path)
-    else:
-        raise ValueError("No gym name provided. Quitting.")
+    p = PureGymLogger()
+    p.watch_gyms()
