@@ -63,7 +63,7 @@ class PureGymLogger:
 
             if html:
                 n = self.extract_number_of_people(html)
-                if n:
+                if n is not None:
                     print("{} people are in {}".format(n, gym_name))
                     self.write_data(n, gym_name)
                     break
