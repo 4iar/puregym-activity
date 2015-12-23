@@ -62,7 +62,7 @@ def watch_gym(gym_url, output_file):
 
         if html:
             n = extract_number_of_people(html)
-            if n:
+            if n is not None:
                 write_data(n, output_file)
             else:
                 continue
