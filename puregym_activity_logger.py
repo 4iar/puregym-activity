@@ -8,7 +8,7 @@ import urllib.request
 import gzip
 import http
 
-CHECK_INTERVAL_MINUTES = 15
+CHECK_INTERVAL_MINUTES = 10
 DATA_SUBDIRECTORY = "recorded_data"
 LIST_OF_GYMS_FILE = "gyms.txt"
 
@@ -85,6 +85,7 @@ class PureGymLogger:
                 # write number of people in gymto file here
                 self.find_number_of_people_in_gym(gym)
 
+            print("Waiting")
             sleep(CHECK_INTERVAL_MINUTES * 60)
 
 
@@ -92,3 +93,5 @@ if __name__ == "__main__":
 
     p = PureGymLogger()
     p.watch_gyms()
+
+
