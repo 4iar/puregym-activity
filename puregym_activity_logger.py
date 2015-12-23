@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import csv
+from database import Database
 from datetime import datetime
 from time import sleep
 from bs4 import BeautifulSoup
@@ -17,6 +17,7 @@ class PureGymLogger:
 
     def __init__(self):
         self.gyms = open(LIST_OF_GYMS_FILE, 'r').read().strip().split('\n')
+        self.db = Database()
 
     def get_page(self, url):
 
@@ -47,13 +48,10 @@ class PureGymLogger:
         else:
             return num
 
-    def write_data(self, num_people, output_file):
+    def write_data(self, num_people, gym_name):
 
-        f = open(output_file, 'a')
-        w = csv.writer(f)
         d = datetime.utcnow()
-
-        w.writerow([d.date(), d.strftime("%A"), d.strftime("%H:%M"), num_people])
+        self.db.log_data(gym_name, d.date(), d.strftime("%A"), d.strftime("%H:%M"), num_people)
 
     def find_number_of_people_in_gym(self, gym_name):
 
@@ -67,7 +65,7 @@ class PureGymLogger:
                 n = self.extract_number_of_people(html)
                 if n:
                     print("{} people are in {}".format(n, gym_name))
-                    #write_data(n, output_file)
+                    self.write_data(n, gym_name)
                     break
                 else:
                     print("broke")
@@ -79,12 +77,12 @@ class PureGymLogger:
     def watch_gyms(self):
 
         while True:
-
             for gym in self.gyms:
 
                 # write number of people in gymto file here
                 self.find_number_of_people_in_gym(gym)
 
+            self.db.commit()
             print("Waiting")
             sleep(CHECK_INTERVAL_MINUTES * 60)
 
