@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 SQLITE_PATH = "db.sqlite"  # should make a config file
 LIST_OF_GYMS_FILE = "gyms.txt"
@@ -39,4 +40,71 @@ class Database:
                 break
             except sqlite3.OperationalError:
                 print("Database locked, trying again")
+
+    def get_data_as_dictlist(self, gym):
+        '''
+        Return all observations for a given gym as a list. Each list item is a
+        single observation containing the keys: date, day, time, num_people.
+        '''
+
+        # handle empty data?
+
+        operation = '''SELECT * FROM `{}` '''.format(gym)
+
+        data = self.cursor.execute(operation).fetchall()
+        data_formatted = []
+
+        for observation in data:
+            d = {}
+            for index, field_label in enumerate(('date', 'day', 'time', 'num_people')):
+                d[field_label] = observation[index]
+            data_formatted.append(d)
+
+        return data_formatted
+
+    def get_data_as_json(self, gym):
+
+        return json.dumps(self.get_data_as_dictlist(gym))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
