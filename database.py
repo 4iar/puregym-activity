@@ -75,7 +75,7 @@ class Database:
         raw_data = self.get_raw_data_as_dictlist(gym)
 
         days = [d for d in range(1, 8)]
-        summary_data = {day: {hour: [] for hour in range(1, 25)} for day in days}
+        summary_data = {day: {hour: [] for hour in range(0, 24)} for day in days}
 
         for observation in raw_data:
             day = time.strptime(observation['day'], '%A').tm_wday + 1  # convert day to number (1-7)
