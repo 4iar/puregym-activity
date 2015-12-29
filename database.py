@@ -68,7 +68,7 @@ class Database:
         return data_formatted
 
     def get_raw_data_as_json(self, gym):
-        return json.dumps(self.get_data_as_dictlist(gym))
+        return json.dumps(self.get_raw_data_as_dictlist(gym))
 
     def get_hour_summary_data_as_json(self, gym):
 
