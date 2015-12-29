@@ -70,30 +70,19 @@ class Database:
     def get_raw_data_as_json(self, gym):
         return json.dumps(self.get_raw_data_as_dictlist(gym))
 
-    def get_hour_summary_data_as_json(self, gym):
+
+    def get_hour_summary_data_as_tsv(self, gym):
 
         raw_data = self.get_raw_data_as_dictlist(gym)
-
-        days = [d for d in range(1, 8)]
-        summary_data = {day: {hour: [] for hour in range(0, 24)} for day in days}
+        summary_data = "day\thour\tvalue\n"
 
         for observation in raw_data:
             day = time.strptime(observation['day'], '%A').tm_wday + 1  # convert day to number (1-7)
-            hour = int(observation['time'].split(':')[0])  # strip the hour value from the string
-            summary_data[day][hour].append(observation['num_people'])
+            hour = int(observation['time'].split(':')[0])   # strip the hour value from the string
+            if hour == 0:
+                hour = 24
+            value = observation['num_people']
 
-        for day in summary_data:
-            for hour in summary_data[day]:
-                try:
-                    summary_data[day][hour] = mean(summary_data[day][hour])
-                except StatisticsError:  # if no data points
-                    summary_data[day][hour] = None
+            summary_data += "{}\t{}\t{}\n".format(day, hour, value)
 
-        return json.dumps(summary_data)
-
-
-
-
-
-
-
+        return summary_data
