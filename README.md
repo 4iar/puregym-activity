@@ -1,3 +1,7 @@
+### Update: no longer works due to changes in the PureGym website
+
+See discussion [here](https://github.com/4iar/puregym-activity/issues/1) for alternatives
+
 ## Installation
 
 Install dependencies for puregym-activity-logger.py
